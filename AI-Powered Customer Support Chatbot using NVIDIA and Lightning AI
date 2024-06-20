@@ -1,0 +1,35 @@
+from openai import OpenAI
+
+client = OpenAI(
+  base_url = "https://integrate.api.nvidia.com/v1",
+  api_key = "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"
+)
+
+# Define a list of FAQs
+faqs = {
+  "What is your return policy?": "Our return policy allows returns within 30 days of purchase.",
+  "How long does shipping take?": "Shipping usually takes 5-7 business days.",
+  # Add more FAQs here
+}
+
+print("Welcome to our Customer Support! How can I assist you today?")
+while True:
+  user_prompt = input()
+
+  # If the user's question is in the FAQs, provide the corresponding answer
+  if user_prompt in faqs:
+    print(faqs[user_prompt])
+  else:
+    # If the user's question is not in the FAQs, use the AI model to generate a response
+    completion = client.chat.completions.create(
+      model="meta/llama3-70b-instruct",
+      messages=[{"role":"user","content": user_prompt}],
+      temperature=0.5,
+      top_p=1,
+      max_tokens=1024,
+      stream=True
+    )
+
+    for chunk in completion:
+      if chunk.choices[0].delta.content is not None:
+        print(chunk.choices[0].delta.content, end="")
